@@ -6,7 +6,9 @@ from django.db.models import Q
 
 
 def index(request):
-    posts = Post.objects.select_related('category', 'location', 'author').filter(
+    posts = Post.objects.select_related(
+        'category', 'location', 'author'
+).filter(
         Q(is_published=True),
         Q(category__is_published=True),
         Q(pub_date__lte=timezone.now())
@@ -19,7 +21,9 @@ def index(request):
 
 
 def post_detail(request, id):
-    post = Post.objects.select_related('category', 'location', 'author').filter(
+    post = Post.objects.select_related(
+        'category', 'location', 'author'
+).filter(
         Q(id=id),
         Q(is_published=True),
         Q(category__is_published=True),
@@ -44,7 +48,9 @@ def category_posts(request, category_slug):
     if not category:
         raise Http404("Категория не найдена")
 
-    posts = Post.objects.select_related('category', 'location', 'author').filter(
+    posts = Post.objects.select_related(
+        'category', 'location', 'author'
+).filter(
         Q(category=category),
         Q(is_published=True),
         Q(pub_date__lte=timezone.now())
