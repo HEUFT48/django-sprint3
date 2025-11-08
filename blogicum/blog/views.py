@@ -8,7 +8,7 @@ from django.db.models import Q
 def index(request):
     posts = Post.objects.select_related(
         'category', 'location', 'author'
-).filter(
+    ).filter(
         Q(is_published=True),
         Q(category__is_published=True),
         Q(pub_date__lte=timezone.now())
@@ -23,7 +23,7 @@ def index(request):
 def post_detail(request, id):
     post = Post.objects.select_related(
         'category', 'location', 'author'
-).filter(
+    ).filter(
         Q(id=id),
         Q(is_published=True),
         Q(category__is_published=True),
@@ -50,7 +50,7 @@ def category_posts(request, category_slug):
 
     posts = Post.objects.select_related(
         'category', 'location', 'author'
-).filter(
+    ).filter(
         Q(category=category),
         Q(is_published=True),
         Q(pub_date__lte=timezone.now())
