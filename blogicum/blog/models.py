@@ -1,31 +1,60 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
+from .constants import (
+    MAX_LENGTH_TITLE,
+    MAX_LENGTH_NAME,
+    MAX_LENGTH_SLUG,
+    DEFAULT_IS_PUBLISHED,
+    SLUG_HELP_TEXT,
+    PUBLISHED_HELP_TEXT,
+    PUB_DATE_HELP_TEXT,
+    TITLE_VERBOSE,
+    DESCRIPTION_VERBOSE,
+    SLUG_VERBOSE,
+    IS_PUBLISHED_VERBOSE,
+    CREATED_AT_VERBOSE,
+    NAME_VERBOSE,
+    TEXT_VERBOSE,
+    PUB_DATE_VERBOSE,
+    AUTHOR_VERBOSE,
+    LOCATION_VERBOSE,
+    CATEGORY_VERBOSE,
+)
+
 User = get_user_model()
 
 
-class Category(models.Model):
-    title = models.CharField(
-        max_length=256,
-        verbose_name='Заголовок'
-    )
-    description = models.TextField(
-        verbose_name='Описание'
-    )
-    slug = models.SlugField(
-        unique=True,
-        verbose_name='Идентификатор',
-        help_text=('Идентификатор страницы для URL; '
-                   'разрешены символы латиницы, цифры, дефис и подчёркивание.')
-    )
+class PublishedModel(models.Model):
+    """Абстрактная модель с полями для публикации."""
+
     is_published = models.BooleanField(
-        default=True,
-        verbose_name='Опубликовано',
-        help_text='Снимите галочку, чтобы скрыть публикацию.'
+        default=DEFAULT_IS_PUBLISHED,
+        verbose_name=IS_PUBLISHED_VERBOSE,
+        help_text=PUBLISHED_HELP_TEXT,
     )
     created_at = models.DateTimeField(
         auto_now_add=True,
-        verbose_name='Добавлено'
+        verbose_name=CREATED_AT_VERBOSE,
+    )
+
+    class Meta:
+        abstract = True
+
+
+class Category(PublishedModel):
+    title = models.CharField(
+        max_length=MAX_LENGTH_TITLE,
+        verbose_name=TITLE_VERBOSE,
+    )
+    description = models.TextField(
+        verbose_name=DESCRIPTION_VERBOSE,
+    )
+    slug = models.SlugField(
+        unique=True,
+        max_length=MAX_LENGTH_SLUG,
+        verbose_name=SLUG_VERBOSE,
+        help_text=SLUG_HELP_TEXT,
     )
 
     class Meta:
@@ -36,19 +65,10 @@ class Category(models.Model):
         return self.title
 
 
-class Location(models.Model):
+class Location(PublishedModel):
     name = models.CharField(
-        max_length=256,
-        verbose_name='Название места'
-    )
-    is_published = models.BooleanField(
-        default=True,
-        verbose_name='Опубликовано',
-        help_text='Снимите галочку, чтобы скрыть местоположение.'
-    )
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Добавлено'
+        max_length=MAX_LENGTH_NAME,
+        verbose_name=NAME_VERBOSE,
     )
 
     class Meta:
@@ -59,45 +79,36 @@ class Location(models.Model):
         return self.name
 
 
-class Post(models.Model):
+class Post(PublishedModel):
     title = models.CharField(
-        max_length=256,
-        verbose_name='Заголовок'
+        max_length=MAX_LENGTH_TITLE,
+        verbose_name=TITLE_VERBOSE,
     )
-    text = models.TextField(verbose_name='Текст')
+    text = models.TextField(verbose_name=TEXT_VERBOSE)
     pub_date = models.DateTimeField(
-        verbose_name='Дата и время публикации',
-        help_text='Если установить дату и время в будущем — можно делать '
-        'отложенные публикации.'
+        verbose_name=PUB_DATE_VERBOSE,
+        help_text=PUB_DATE_HELP_TEXT,
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='Автор публикации',
-        related_name='posts'
+        verbose_name=AUTHOR_VERBOSE,
+        related_name='posts',
     )
     location = models.ForeignKey(
         Location,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        verbose_name='Местоположение',
-        related_name='posts'
+        verbose_name=LOCATION_VERBOSE,
+        related_name='posts',
     )
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
         null=True,
-        verbose_name='Категория',
-        related_name='posts'
-    )
-    is_published = models.BooleanField(
-        default=True,
-        verbose_name='Опубликовано'
-    )
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Добавлено'
+        verbose_name=CATEGORY_VERBOSE,
+        related_name='posts',
     )
 
     class Meta:
