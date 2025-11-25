@@ -42,10 +42,9 @@ def category_posts(request, category_slug):
         is_published=True
     )
 
-    posts = Post.objects.select_related(
-        'category', 'location', 'author'
+    posts = category.posts.select_related(
+        'location', 'author'
     ).filter(
-        category=category,
         is_published=True,
         pub_date__lte=timezone.now()
     ).order_by('-pub_date')
